@@ -2,7 +2,6 @@ package ca.ukenov.shoppinglist.presentation
 
 import androidx.recyclerview.widget.DiffUtil
 import ca.ukenov.shoppinglist.domain.models.ShopItem
-import kotlin.math.log
 
 class ShopListDiffCallback(
     private val oldList: List<ShopItem>,

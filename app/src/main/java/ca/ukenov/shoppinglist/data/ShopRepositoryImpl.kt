@@ -15,19 +15,6 @@ object ShopRepositoryImpl : ShopRepository {
     private val items = sortedSetOf<ShopItem>({o1, o2 -> o1.id.compareTo(o2.id)})
     private var autoIncrementId = 0
 
-    init {
-        for (i in 0 until 1000) {
-            addItem(
-                ShopItem(
-                    title = "Title $i",
-                    count = Random.nextInt(0, 100),
-                    isActive = Random.nextBoolean()
-                )
-            )
-        }
-    }
-
-
     override fun addItem(item: ShopItem) {
         if(item.id == ShopItem.UNDEFINED_ID) {
             item.id = autoIncrementId++
@@ -47,7 +34,7 @@ object ShopRepositoryImpl : ShopRepository {
     }
     override fun toggleIsActiveItem(item: ShopItem) {
         items.remove(item)
-        addItem(ShopItem(title = item.title, id = item.id, isActive = !item.isActive, count = item.count))
+        addItem(item.copy(isActive = !item.isActive))
     }
 
     override fun getById(id: Int): ShopItem {

@@ -1,14 +1,15 @@
 package ca.ukenov.shoppinglist.presentation
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import ca.ukenov.shoppinglist.R
 import ca.ukenov.shoppinglist.presentation.ShopListAdapter.Companion.DISABLED
 import ca.ukenov.shoppinglist.presentation.ShopListAdapter.Companion.ENABLED
 import ca.ukenov.shoppinglist.presentation.ShopListAdapter.Companion.MAX_POOL_SIZE
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class MainActivity : AppCompatActivity() {
 
@@ -21,6 +22,11 @@ class MainActivity : AppCompatActivity() {
         setupRecyclerView()
         mainViewModel.items.observe(this) {
             adapter.submitList(it)
+        }
+
+        findViewById<FloatingActionButton>(R.id.button_add_shop_item).setOnClickListener {
+            val intent = ShopItemActivity.getAddIntent(this)
+            startActivity(intent)
         }
     }
 
@@ -48,7 +54,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupOnClickListenerForRecycleView() {
         adapter.onClickListener = {
-            println(it)
+            val intent = ShopItemActivity.getEditIntent(this, it.id)
+            startActivity(intent)
         }
     }
 

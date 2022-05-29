@@ -15,17 +15,13 @@ class ShopListAdapter : ListAdapter<ShopItem, ShopListAdapter.ShopListViewHolder
 
     var onLongClickListener: ((item: ShopItem) -> Unit)? = null
     var onClickListener: ((item: ShopItem) -> Unit)? = null
-    var  counter = 0
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShopListViewHolder {
-        println("onCreateViewHolder ${++counter}")
-
         val viewId = if (viewType == ENABLED) {
             R.layout.item_shop_enabled
         } else {
             R.layout.item_shop_disabled
         }
         val view = LayoutInflater.from(parent.context).inflate(viewId, parent, false)
-
 
         return ShopListViewHolder(view)
     }
@@ -38,7 +34,7 @@ class ShopListAdapter : ListAdapter<ShopItem, ShopListAdapter.ShopListViewHolder
             true
         }
         holder.view.setOnClickListener {
-            onClickListener?.invoke(getItem(position))
+            onClickListener?.invoke(getItem(holder.adapterPosition))
         }
     }
 
