@@ -27,7 +27,7 @@ class ShopItemActivity : AppCompatActivity() {
             else -> throw RuntimeException("Mode $screenMode is unknown")
         }
         supportFragmentManager.beginTransaction()
-            .add(R.id.shop_item_container, fragment)
+            .replace(R.id.shop_item_container, fragment)
             .commit()
     }
 

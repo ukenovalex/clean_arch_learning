@@ -11,14 +11,14 @@ import androidx.fragment.app.activityViewModels
 import ca.ukenov.shoppinglist.databinding.ShopItemFragmentBinding
 import ca.ukenov.shoppinglist.domain.models.ShopItem
 
-class ShopItemFragment(
-    private val screenMode: String = MODE_UNKNOWN,
-    private val itemId: Int = ShopItem.UNDEFINED_ID
-) : Fragment() {
+class ShopItemFragment : Fragment() {
     private val shopItemViewModel: ShopItemViewModel by activityViewModels()
 
     private var _binding: ShopItemFragmentBinding? = null
     private val binding get() = _binding!!
+
+    private var screenMode: String = MODE_UNKNOWN
+    private var itemId: Int = ShopItem.UNDEFINED_ID
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -27,14 +27,11 @@ class ShopItemFragment(
     ): View {
         parseParams()
         _binding = ShopItemFragmentBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         when (screenMode) {
             MODE_EDIT -> launchEditMode()
             MODE_ADD -> launchAddMode()
         }
+        return binding.root
     }
     private fun launchEditMode() {
         setupViewEditShopItem()
@@ -44,8 +41,8 @@ class ShopItemFragment(
             val name = binding.etName.text.toString()
             val count = binding.etCount.text.toString()
             shopItemViewModel.editShopItem(inputName = name, inputCount = count)
+            onFinishActivity()
         }
-        onFinishActivity()
     }
 
     private fun launchAddMode() {
@@ -54,8 +51,8 @@ class ShopItemFragment(
             val name = binding.etName.text.toString()
             val count = binding.etCount.text.toString()
             shopItemViewModel.addShopItem(inputName = name, inputCount = count)
+            onFinishActivity()
         }
-        onFinishActivity()
     }
 
     private fun addErrorInputListener() {
@@ -105,26 +102,44 @@ class ShopItemFragment(
     }
 
     private fun parseParams() {
-        if (screenMode != MODE_ADD && screenMode != MODE_EDIT) {
-            throw RuntimeException("Mode $screenMode is unknown")
+        val args = requireArguments()
+        if (!args.containsKey(SCREEN_MODE)) {
+            throw RuntimeException("Param screen mode is absent")
         }
-        if (screenMode == MODE_EDIT && itemId == ShopItem.UNDEFINED_ID) {
+        val mode = args.getString(SCREEN_MODE)
+        if (mode != MODE_ADD && mode != MODE_EDIT) {
+            throw RuntimeException("Mode $mode is unknown")
+        }
+        screenMode = mode
+        if (mode == MODE_EDIT && !args.containsKey(SHOP_ITEM_ID)) {
             throw RuntimeException("Param id is absent")
         }
+        itemId = args.getInt(SHOP_ITEM_ID, ShopItem.UNDEFINED_ID)
     }
 
 
     companion object {
+        private const val SCREEN_MODE = "EXTRA_SCREEN_MODE"
+        private const val SHOP_ITEM_ID = "EXTRA_ITEM_ID"
         private const val MODE_ADD = "MODE_ADD"
         private const val MODE_EDIT = "MODE_EDIT"
         private const val MODE_UNKNOWN = ""
 
         fun newInstanceEditItem(itemId: Int): ShopItemFragment {
-            return ShopItemFragment(MODE_EDIT, itemId)
+            return ShopItemFragment().apply {
+                arguments = Bundle().apply {
+                    putString(SCREEN_MODE, MODE_EDIT)
+                    putInt(SHOP_ITEM_ID, itemId)
+                }
+            }
         }
 
         fun newInstanceAddItem(): ShopItemFragment {
-            return  ShopItemFragment(MODE_ADD)
+            return  ShopItemFragment().apply {
+                arguments = Bundle().apply {
+                    putString(SCREEN_MODE, MODE_ADD)
+                }
+            }
         }
     }
 }
