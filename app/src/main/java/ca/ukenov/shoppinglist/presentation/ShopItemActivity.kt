@@ -3,16 +3,11 @@ package ca.ukenov.shoppinglist.presentation
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.add
 import ca.ukenov.shoppinglist.R
-import ca.ukenov.shoppinglist.databinding.ActivityShopItemBinding
 import ca.ukenov.shoppinglist.domain.models.ShopItem
 
-class ShopItemActivity : AppCompatActivity() {
+class ShopItemActivity : AppCompatActivity(), ShopItemFragment.OnFinishShopItemFragment {
     private var screenMode = MODE_UNKNOWN
     private var itemId = ShopItem.UNDEFINED_ID
 
@@ -67,5 +62,9 @@ class ShopItemActivity : AppCompatActivity() {
             intent.putExtra(EDIT_ITEM_ID, id)
             return intent
         }
+    }
+
+    override fun finishShopItemFragment() {
+        finish()
     }
 }

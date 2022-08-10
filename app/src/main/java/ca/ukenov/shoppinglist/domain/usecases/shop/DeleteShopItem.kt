@@ -5,7 +5,7 @@ import ca.ukenov.shoppinglist.domain.repository.ShopRepository
 
 class DeleteShopItem(private val repository: ShopRepository) {
 
-    fun deleteItem(item: ShopItem) {
+    suspend fun deleteItem(item: ShopItem) {
         repository.deleteItem(item)
     }
 

@@ -1,18 +1,21 @@
 package ca.ukenov.shoppinglist.presentation
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import ca.ukenov.shoppinglist.data.ShopRepositoryImpl
 import ca.ukenov.shoppinglist.domain.models.ShopItem
 import ca.ukenov.shoppinglist.domain.usecases.shop.AddShopItem
 import ca.ukenov.shoppinglist.domain.usecases.shop.EditShopItem
 import ca.ukenov.shoppinglist.domain.usecases.shop.GetItemById
-import java.lang.Exception
+import kotlinx.coroutines.launch
 
-class ShopItemViewModel : ViewModel() {
+class ShopItemViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository = ShopRepositoryImpl
+    private val repository = ShopRepositoryImpl(application)
+
 
     private val editShopItem = EditShopItem(repository)
     private val getShopItemById = GetItemById(repository)
@@ -42,14 +45,18 @@ class ShopItemViewModel : ViewModel() {
         if (isCorrect) {
             _currentShopItem.value?.let {
                 val item = it.copy(title = name, count = count)
-                editShopItem.editItem(item)
-                finishWork()
+                viewModelScope.launch {
+                    editShopItem.editItem(item)
+                    finishWork()
+                }
             }
         }
     }
 
     fun getShopItem(id: Int) {
-        _currentShopItem.value =  getShopItemById.getById(id)
+        viewModelScope.launch {
+            _currentShopItem.value =  getShopItemById.getById(id)
+        }
     }
 
     fun addShopItem(inputName: String?, inputCount: String?) {
@@ -59,10 +66,13 @@ class ShopItemViewModel : ViewModel() {
             name = name, count = count
         )
         if (isCorrect) {
-            addShopItem.addItem(
-                ShopItem(title = name, count = count, isActive = true)
-            )
-            finishWork()
+            viewModelScope.launch {
+                addShopItem.addItem(
+                    ShopItem(title = name, count = count, isActive = true)
+                )
+                finishWork()
+            }
+
         }
     }
 
@@ -101,5 +111,4 @@ class ShopItemViewModel : ViewModel() {
     fun resetErrorInputCount() {
         _errorInputCount.value = false
     }
-
 }

@@ -5,7 +5,7 @@ import ca.ukenov.shoppinglist.domain.repository.ShopRepository
 
 class EditShopItem(private val repository: ShopRepository) {
 
-    fun editItem(item: ShopItem) {
+    suspend fun editItem(item: ShopItem) {
         repository.editItem(item)
     }
 

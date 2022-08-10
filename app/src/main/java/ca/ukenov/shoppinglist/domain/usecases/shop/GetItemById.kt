@@ -5,7 +5,7 @@ import ca.ukenov.shoppinglist.domain.repository.ShopRepository
 
 class GetItemById(private val repository: ShopRepository) {
 
-    fun getById(id: Int): ShopItem {
+    suspend fun getById(id: Int): ShopItem {
         return repository.getById(id)
     }
 

@@ -1,17 +1,19 @@
 package ca.ukenov.shoppinglist.presentation
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import androidx.databinding.DataBindingUtil
+import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import ca.ukenov.shoppinglist.R
+import ca.ukenov.shoppinglist.databinding.ItemShopDisabledBinding
+import ca.ukenov.shoppinglist.databinding.ItemShopEnabledBinding
 import ca.ukenov.shoppinglist.domain.models.ShopItem
 
 
-
-class ShopListAdapter : ListAdapter<ShopItem, ShopListAdapter.ShopListViewHolder>(ShopItemDiffCallback()) {
+class ShopListAdapter :
+    ListAdapter<ShopItem, ShopListAdapter.ShopListViewHolder>(ShopItemDiffCallback()) {
 
     var onLongClickListener: ((item: ShopItem) -> Unit)? = null
     var onClickListener: ((item: ShopItem) -> Unit)? = null
@@ -21,19 +23,36 @@ class ShopListAdapter : ListAdapter<ShopItem, ShopListAdapter.ShopListViewHolder
         } else {
             R.layout.item_shop_disabled
         }
-        val view = LayoutInflater.from(parent.context).inflate(viewId, parent, false)
+        LayoutInflater.from(parent.context).inflate(viewId, parent, false)
 
-        return ShopListViewHolder(view)
+        val binding = DataBindingUtil.inflate<ViewDataBinding>(
+            LayoutInflater.from(parent.context),
+            viewId,
+            parent,
+            false
+        )
+
+        return ShopListViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: ShopListViewHolder, position: Int) {
-        holder.title.text = getItem(holder.adapterPosition).title
-        holder.count.text = getItem(holder.adapterPosition).count.toString()
-        holder.view.setOnLongClickListener {
+        val binding = holder.binding
+
+        when (binding) {
+            is ItemShopDisabledBinding -> {
+                binding.tvName.text = getItem(holder.adapterPosition).title
+                binding.tvCount.text = getItem(holder.adapterPosition).count.toString()
+            }
+            is ItemShopEnabledBinding -> {
+                binding.tvName.text = getItem(holder.adapterPosition).title
+                binding.tvCount.text = getItem(holder.adapterPosition).count.toString()
+            }
+        }
+        binding.root.setOnLongClickListener {
             onLongClickListener?.invoke(getItem(holder.adapterPosition))
             true
         }
-        holder.view.setOnClickListener {
+        binding.root.setOnClickListener {
             onClickListener?.invoke(getItem(holder.adapterPosition))
         }
     }
@@ -47,10 +66,7 @@ class ShopListAdapter : ListAdapter<ShopItem, ShopListAdapter.ShopListViewHolder
     }
 
 
-    class ShopListViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
-        val title: TextView = view.findViewById(R.id.tv_name)
-        val count: TextView = view.findViewById(R.id.tv_count)
-    }
+    class ShopListViewHolder(val binding: ViewDataBinding) : RecyclerView.ViewHolder(binding.root)
 
     companion object {
         const val ENABLED = 0

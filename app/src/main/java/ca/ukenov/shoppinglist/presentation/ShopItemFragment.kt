@@ -1,5 +1,6 @@
 package ca.ukenov.shoppinglist.presentation
 
+import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -20,6 +21,17 @@ class ShopItemFragment : Fragment() {
     private var screenMode: String = MODE_UNKNOWN
     private var itemId: Int = ShopItem.UNDEFINED_ID
 
+    private lateinit var onFinishShopItemFragment: OnFinishShopItemFragment
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if(context is OnFinishShopItemFragment) {
+            onFinishShopItemFragment = context
+        } else {
+            throw RuntimeException("Activity must implement OnFinishShopItemFragment")
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -27,6 +39,8 @@ class ShopItemFragment : Fragment() {
     ): View {
         parseParams()
         _binding = ShopItemFragmentBinding.inflate(inflater, container, false)
+        binding.viewModel = shopItemViewModel
+        binding.lifecycleOwner = viewLifecycleOwner
         when (screenMode) {
             MODE_EDIT -> launchEditMode()
             MODE_ADD -> launchAddMode()
@@ -34,7 +48,7 @@ class ShopItemFragment : Fragment() {
         return binding.root
     }
     private fun launchEditMode() {
-        setupViewEditShopItem()
+        shopItemViewModel.getShopItem(itemId)
         addErrorInputListener()
 
         binding.saveButton.setOnClickListener {
@@ -62,33 +76,11 @@ class ShopItemFragment : Fragment() {
         binding.etCount.addTextChangedListener(ClearError {
             shopItemViewModel.resetErrorInputCount()
         })
-        shopItemViewModel.errorInputName.observe(viewLifecycleOwner) {
-            if (it) {
-                binding.tilName.error = "Name is require field"
-            } else {
-                binding.tilName.error = ""
-            }
-        }
-        shopItemViewModel.errorInputCount.observe(viewLifecycleOwner) {
-            if (it) {
-                binding.tilCount.error = "Count is must be more than zero"
-            } else {
-                binding.tilCount.error = ""
-            }
-        }
-    }
-
-    private fun setupViewEditShopItem() {
-        shopItemViewModel.getShopItem(itemId)
-        shopItemViewModel.currentShopItem.observe(viewLifecycleOwner) {
-            binding.etName.setText(it.title)
-            binding.etCount.setText(it.count.toString())
-        }
     }
 
     private fun onFinishActivity() {
         shopItemViewModel.shouldCloseScreen.observe(viewLifecycleOwner) {
-            activity?.onBackPressed()
+            onFinishShopItemFragment.finishShopItemFragment()
         }
     }
 
@@ -115,6 +107,11 @@ class ShopItemFragment : Fragment() {
             throw RuntimeException("Param id is absent")
         }
         itemId = args.getInt(SHOP_ITEM_ID, ShopItem.UNDEFINED_ID)
+    }
+
+
+    interface OnFinishShopItemFragment {
+        fun finishShopItemFragment()
     }
 
 

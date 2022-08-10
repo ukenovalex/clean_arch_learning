@@ -5,7 +5,7 @@ import ca.ukenov.shoppinglist.domain.repository.ShopRepository
 
 class AddShopItem(private val repository: ShopRepository) {
 
-    fun addItem(item: ShopItem) {
+    suspend fun addItem(item: ShopItem) {
         repository.addItem(item)
     }
 }

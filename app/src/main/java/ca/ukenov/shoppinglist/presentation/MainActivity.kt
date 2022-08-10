@@ -1,28 +1,32 @@
 package ca.ukenov.shoppinglist.presentation
 
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentContainer
 import androidx.fragment.app.FragmentContainerView
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import ca.ukenov.shoppinglist.R
+import ca.ukenov.shoppinglist.databinding.ActivityMainBinding
 import ca.ukenov.shoppinglist.presentation.ShopListAdapter.Companion.DISABLED
 import ca.ukenov.shoppinglist.presentation.ShopListAdapter.Companion.ENABLED
 import ca.ukenov.shoppinglist.presentation.ShopListAdapter.Companion.MAX_POOL_SIZE
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), ShopItemFragment.OnFinishShopItemFragment {
 
     private val mainViewModel: MainViewModel by viewModels()
     private lateinit var adapter: ShopListAdapter
+    private lateinit var binding: ActivityMainBinding
     private var shopItemContainer: FragmentContainerView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         setupRecyclerView()
         shopItemContainer = findViewById(R.id.shop_item_container)
         mainViewModel.items.observe(this) {
@@ -53,24 +57,19 @@ class MainActivity : AppCompatActivity() {
             .replace(R.id.shop_item_container, fragment)
             .addToBackStack(null)
             .commit()
-
-
     }
 
 
     private fun setupRecyclerView() {
-        val rvShopList: RecyclerView = findViewById(R.id.rv_shop_list)
         adapter = ShopListAdapter()
-        rvShopList.adapter = adapter
-        with(rvShopList) {
+        binding.rvShopList.adapter = adapter
+        with(binding.rvShopList) {
             recycledViewPool.setMaxRecycledViews(ENABLED, MAX_POOL_SIZE)
             recycledViewPool.setMaxRecycledViews(DISABLED, MAX_POOL_SIZE)
         }
         setupOnLongClickListenerForRecycleView()
         setupOnClickListenerForRecycleView()
-        setupOnSwipeToDeleteForRecycleView(rvShopList)
-
-
+        setupOnSwipeToDeleteForRecycleView(binding.rvShopList)
     }
 
     private fun setupOnLongClickListenerForRecycleView() {
@@ -115,6 +114,11 @@ class MainActivity : AppCompatActivity() {
         }
         val callback = ItemTouchHelper(simpleCallback)
         callback.attachToRecyclerView(rvShopList)
+    }
+
+    override fun finishShopItemFragment() {
+        Toast.makeText(this, "Success", Toast.LENGTH_SHORT).show()
+        supportFragmentManager.popBackStack()
     }
 
 }
